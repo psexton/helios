@@ -34,7 +34,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("confdir:", confDir) // @DEBUG
+	fmt.Println("confdir:", confDir)     // @DEBUG
 	fmt.Println("isSunrise:", isSunrise) // @DEBUG
 
 	// read in data from conf dir
@@ -51,4 +51,3 @@ func main() {
 	// parse them and download all tgz attachments
 	// upload everything to s3
 }
-

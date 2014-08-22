@@ -18,13 +18,9 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
-	///"launchpad.net/goamz/aws"
-	///"launchpad.net/goamz/s3"
-	///"log"
 )
 
 func readCliFlags() (confDir string, isSunrise bool, err error) {
@@ -35,11 +31,11 @@ func readCliFlags() (confDir string, isSunrise bool, err error) {
 
 	// Err out if command isn't "sunrise" or "sunset"
 	if !(*sunrisePtr || *sunsetPtr) {
-		err = errors.New("Either --sunrise or --sunset must be specified")
+		err = fmt.Errorf("either --sunrise or --sunset must be specified")
 		return
 	}
-	if (*sunrisePtr && *sunsetPtr) {
-		err = errors.New("Can't do both sunrise and sunset")
+	if *sunrisePtr && *sunsetPtr {
+		err = fmt.Errorf("can't do both sunrise and sunset")
 		return
 	}
 	isSunrise = *sunrisePtr
@@ -58,10 +54,9 @@ func readCliFlags() (confDir string, isSunrise bool, err error) {
 		return
 	}
 	if !fileStat.IsDir() {
-		err = errors.New(fmt.Sprintf("\"%s\" is not a directory", *confDirPtr))
+		err = fmt.Errorf("\"%s\" is not a directory", *confDirPtr)
 		return
 	}
 	confDir = *confDirPtr
 	return
 }
-
