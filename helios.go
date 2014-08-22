@@ -18,17 +18,27 @@ You should have received a copy of the GNU General Public License
 along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package helios
+package main
 
-/*import (
-    "fmt"
-    "launchpad.net/goamz/aws"
-    "launchpad.net/goamz/s3"
-    "log"
-)*/
+import (
+	"errors"
+	"flag"
+	"fmt"
+	///"launchpad.net/goamz/aws"
+	///"launchpad.net/goamz/s3"
+	///"log"
+)
 
 func main() {
 	// read in CLI flags and arguments
+	confDir, isSunrise, err := readCliFlags()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("confdir:", confDir) // @DEBUG
+	fmt.Println("isSunrise:", isSunrise) // @DEBUG
+
 	// read in data from conf dir
 
 	// SUNRISE
@@ -42,4 +52,28 @@ func main() {
 	// download all json files
 	// parse them and download all tgz attachments
 	// upload everything to s3
+}
+
+func readCliFlags() (confDir string, isSunrise bool, err error) {
+	sunrisePtr := flag.Bool("sunrise", false, "Import data from s3 to couchdb")
+	sunsetPtr := flag.Bool("sunset", false, "Export data from couchdb to s3")
+	confDirPtr := flag.String("confdir", "/path/to/conf/files", "Directory containing conf files")
+	flag.Parse()
+
+	// Err out if command isn't "sunrise" or "sunset"
+	if !(*sunrisePtr || *sunsetPtr) {
+		err = errors.New("Either --sunrise or --sunset must be specified")
+		return
+	}
+	if (*sunrisePtr && *sunsetPtr) {
+		err = errors.New("Can't do both sunrise and sunset")
+		return
+	}
+	isSunrise = *sunrisePtr
+
+	// Err out if confdir isn't a directory
+	// @TODO
+	confDir = *confDirPtr	
+
+	return
 }
