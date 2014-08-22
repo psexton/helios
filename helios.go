@@ -21,10 +21,7 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"errors"
-	"flag"
 	"fmt"
-	"os"
 	///"launchpad.net/goamz/aws"
 	///"launchpad.net/goamz/s3"
 	///"log"
@@ -55,40 +52,3 @@ func main() {
 	// upload everything to s3
 }
 
-func readCliFlags() (confDir string, isSunrise bool, err error) {
-	sunrisePtr := flag.Bool("sunrise", false, "Import data from s3 to couchdb")
-	sunsetPtr := flag.Bool("sunset", false, "Export data from couchdb to s3")
-	confDirPtr := flag.String("confdir", "/path/to/conf/files", "Directory containing conf files")
-	flag.Parse()
-
-	// Err out if command isn't "sunrise" or "sunset"
-	if !(*sunrisePtr || *sunsetPtr) {
-		err = errors.New("Either --sunrise or --sunset must be specified")
-		return
-	}
-	if (*sunrisePtr && *sunsetPtr) {
-		err = errors.New("Can't do both sunrise and sunset")
-		return
-	}
-	isSunrise = *sunrisePtr
-
-	// Err out if confdir isn't a directory
-	//	First check if the path exists by trying to open it as a file
-	file, fileErr := os.Open(*confDirPtr)
-	if fileErr != nil {
-		err = fileErr
-		return
-	}
-	//	Then Stat it to check it's a dir
-	fileStat, statErr := file.Stat()
-	if statErr != nil {
-		err = statErr
-		return
-	}
-	if !fileStat.IsDir() {
-		err = errors.New(fmt.Sprintf("\"%s\" is not a directory", *confDirPtr))
-		return
-	}
-	confDir = *confDirPtr
-	return
-}
