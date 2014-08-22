@@ -20,6 +20,7 @@ package main
 import (
 	"io/ioutil"
 	"path"
+	"strings"
 )
 
 // readConfDir takes a directory full of text files, and puts it into a map
@@ -44,7 +45,7 @@ func readConfDir(confDirPath string) (data map[string]string, err error) {
 		}
 		// Assign into map
 		key := fileInfo.Name()
-		value := string(contents)
+		value := strings.Trim(string(contents), "\n") // strip out trailing newline
 		data[key] = value
 	}
 
