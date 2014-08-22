@@ -24,6 +24,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 	///"launchpad.net/goamz/aws"
 	///"launchpad.net/goamz/s3"
 	///"log"
@@ -72,8 +73,22 @@ func readCliFlags() (confDir string, isSunrise bool, err error) {
 	isSunrise = *sunrisePtr
 
 	// Err out if confdir isn't a directory
-	// @TODO
-	confDir = *confDirPtr	
-
+	//	First check if the path exists by trying to open it as a file
+	file, fileErr := os.Open(*confDirPtr)
+	if fileErr != nil {
+		err = fileErr
+		return
+	}
+	//	Then Stat it to check it's a dir
+	fileStat, statErr := file.Stat()
+	if statErr != nil {
+		err = statErr
+		return
+	}
+	if !fileStat.IsDir() {
+		err = errors.New(fmt.Sprintf("\"%s\" is not a directory", *confDirPtr))
+		return
+	}
+	confDir = *confDirPtr
 	return
 }
