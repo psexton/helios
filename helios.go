@@ -21,27 +21,25 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"fmt"
+	"log"
 )
 
 func main() {
 	// read in CLI flags and arguments
 	confDir, isSunrise, err := readCliFlags()
 	if err != nil {
-		fmt.Println(err)
-		return
+		fail(err)
 	}
-	fmt.Println("confdir:", confDir)     // @DEBUG
-	fmt.Println("isSunrise:", isSunrise) // @DEBUG
+	log.Println("confDir:", confDir)
+	log.Println("isSunrise:", isSunrise)
 
 	// read in data from conf dir
 	// conf is a map[string]string
 	conf, err := readConfDir(confDir)
 	if err != nil {
-		fmt.Println(err)
-		return
+		fail(err)
 	}
-	fmt.Println("conf:", conf) // @DEBUG
+	log.Println("conf:", conf)
 
 	// SUNRISE
 	// download bucket listing from s3
@@ -54,4 +52,8 @@ func main() {
 	// download all json files
 	// parse them and download all tgz attachments
 	// upload everything to s3
+}
+
+func fail(err error) {
+	log.Fatalf("FATAL %s", err)
 }
