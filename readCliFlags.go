@@ -23,6 +23,7 @@ import (
 	"os"
 )
 
+// readCliFlags reads in command line arguments and flags and validates them
 func readCliFlags() (confDir string, isSunrise bool, err error) {
 	sunrisePtr := flag.Bool("sunrise", false, "Import data from s3 to couchdb")
 	sunsetPtr := flag.Bool("sunset", false, "Export data from couchdb to s3")

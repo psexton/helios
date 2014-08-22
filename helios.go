@@ -22,9 +22,6 @@ package main
 
 import (
 	"fmt"
-	///"launchpad.net/goamz/aws"
-	///"launchpad.net/goamz/s3"
-	///"log"
 )
 
 func main() {
@@ -38,6 +35,13 @@ func main() {
 	fmt.Println("isSunrise:", isSunrise) // @DEBUG
 
 	// read in data from conf dir
+	// conf is a map[string]string
+	conf, err := readConfDir(confDir)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("conf:", conf) // @DEBUG
 
 	// SUNRISE
 	// download bucket listing from s3
