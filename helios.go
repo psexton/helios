@@ -54,6 +54,7 @@ func main() {
 	// upload everything to s3
 }
 
+// fail wraps log.Fatal and injects the string "FATAL" into the message
 func fail(err error) {
 	log.Fatalf("FATAL %s", err)
 }
