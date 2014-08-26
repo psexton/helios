@@ -22,6 +22,7 @@ import (
 	log "github.com/cihub/seelog"
 	"github.com/mitchellh/goamz/aws"
 	"io/ioutil"
+	"os/exec"
 	"path"
 	"strings"
 )
@@ -93,10 +94,11 @@ func sunrise(conf map[string]string) (err error) {
 
 func sunriseStep3(filepath string, conf map[string]string) (err error) {
 	log.Info("Publishing ", filepath)
+	err = exec.Command("npm", "publish", filepath).Run()
 	return
 }
 
 func sunriseStep4(filepath string, conf map[string]string) (err error) {
-	log.Info("Overwriting ", filepath)
+	log.Info("[PLACEHOLDER] Overwriting ", filepath)
 	return
 }
