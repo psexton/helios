@@ -21,40 +21,39 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"log"
+	log "github.com/cihub/seelog"
+	"os"
 )
 
 func main() {
+	defer log.Flush()
+
 	// read in CLI flags and arguments
 	confDir, isSunrise, err := readCliFlags()
-	if err != nil {
-		fail(err)
-	}
-	log.Println("confDir:", confDir)
-	log.Println("isSunrise:", isSunrise)
+	exitOnError(err)
+	log.Info("confDir: ", confDir)
+	log.Info("isSunrise: ", isSunrise)
 
 	// read in data from conf dir
 	// conf is a map[string]string
 	conf, err := readConfDir(confDir)
-	if err != nil {
-		fail(err)
-	}
+	exitOnError(err)
 
 	// call sunrise or sunset, passing it the conf data
 	if isSunrise {
 		err := sunrise(conf)
-		if err != nil {
-			fail(err)
-		}
+		exitOnError(err)
 	} else {
 		err := sunset(conf)
-		if err != nil {
-			fail(err)
-		}
+		exitOnError(err)
 	}
 }
 
-// fail wraps log.Fatal and injects the string "FATAL" into the message
-func fail(err error) {
-	log.Fatalf("FATAL %s", err)
+// utility func taken from gosync's main.go
+func exitOnError(e error) {
+	if e != nil {
+		log.Errorf("Received error '%s'", e.Error())
+		log.Flush()
+		os.Exit(1)
+	}
 }

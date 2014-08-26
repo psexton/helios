@@ -19,9 +19,9 @@ package main
 
 import (
 	"github.com/brettweavnet/gosync/gosync"
+	log "github.com/cihub/seelog"
 	"github.com/mitchellh/goamz/aws"
 	"io/ioutil"
-	"log"
 )
 
 // sunrise imports from s3 to npm-registry
@@ -46,9 +46,9 @@ func sunrise(conf map[string]string) (err error) {
 		err = tempDirErr
 		return
 	}
-	log.Println("auth:", auth)
-	log.Println("source:", source)
-	log.Println("dest:", dest)
+	log.Debug("auth:", auth)
+	log.Debug("source:", source)
+	log.Debug("dest:", dest)
 
 	syncPair := gosync.NewSyncPair(auth, source, dest)
 	syncPair.Concurrent = concurrent
@@ -57,9 +57,8 @@ func sunrise(conf map[string]string) (err error) {
 		err = syncErr
 		return
 	}
-	
+
 	// 3: use npm to publish all tgz files
-	
 
 	return
 }
