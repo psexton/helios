@@ -22,6 +22,8 @@ import (
 	log "github.com/cihub/seelog"
 	"github.com/mitchellh/goamz/aws"
 	"io/ioutil"
+	"path"
+	"strings"
 )
 
 // sunrise imports from s3 to npm-registry
@@ -58,7 +60,43 @@ func sunrise(conf map[string]string) (err error) {
 		return
 	}
 
-	// 3: use npm to publish all tgz files
+	// 2.5: Get directory listing and separate tgz from json
+	fileInfos, readDirErr := ioutil.ReadDir(dest)
+	if readDirErr != nil {
+		err = readDirErr
+		return
+	}
+	tgzFiles := []string{}
+	jsonFiles := []string{}
+	for _, fileInfo := range fileInfos {
+		filePath := path.Join(dest, fileInfo.Name())
+		if strings.HasSuffix(filePath, ".tgz") {
+			tgzFiles = append(tgzFiles, filePath)
+		}
+		if strings.HasSuffix(filePath, ".json") {
+			jsonFiles = append(jsonFiles, filePath)
+		}
+	}
 
+	// 3: use npm to publish all tgz files
+	for _, tgzFile := range tgzFiles {
+		sunriseStep3(tgzFile, conf)
+	}
+
+	// 4: talk to couchdb directly to overwrite the json files
+	for _, jsonFile := range jsonFiles {
+		sunriseStep4(jsonFile, conf)
+	}
+
+	return
+}
+
+func sunriseStep3(filepath string, conf map[string]string) (err error) {
+	log.Info("Publishing ", filepath)
+	return
+}
+
+func sunriseStep4(filepath string, conf map[string]string) (err error) {
+	log.Info("Overwriting ", filepath)
 	return
 }
