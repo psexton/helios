@@ -39,19 +39,19 @@ func main() {
 	if err != nil {
 		fail(err)
 	}
-	log.Println("conf:", conf)
 
-	// SUNRISE
-	// download bucket listing from s3
-	// download files from s3
-	// use npm to publish all tgz files
-	// talk to couchdb directly to overwrite the json files
-
-	// SUNSET
-	// talk to couchdb directly to get list of json files
-	// download all json files
-	// parse them and download all tgz attachments
-	// upload everything to s3
+	// call sunrise or sunset, passing it the conf data
+	if isSunrise {
+		err := sunrise(conf)
+		if err != nil {
+			fail(err)
+		}
+	} else {
+		err := sunset(conf)
+		if err != nil {
+			fail(err)
+		}
+	}
 }
 
 // fail wraps log.Fatal and injects the string "FATAL" into the message
