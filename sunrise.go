@@ -30,7 +30,7 @@ import (
 // 3) use npm to publish all tgz files
 // 4) talk to couchdb directly to overwrite the json files
 func sunrise(conf map[string]string) (err error) {
-	const concurrent = 5 // @MAGIC
+	const concurrent = 20 // @MAGIC
 
 	// 1 & 2: use s3sync to download the bucket
 
@@ -51,11 +51,15 @@ func sunrise(conf map[string]string) (err error) {
 	log.Println("dest:", dest)
 
 	syncPair := gosync.NewSyncPair(auth, source, dest)
+	syncPair.Concurrent = concurrent
 	syncErr := syncPair.Sync()
 	if syncErr != nil {
-		err = tempDirErr
+		err = syncErr
 		return
 	}
+	
+	// 3: use npm to publish all tgz files
+	
 
 	return
 }
