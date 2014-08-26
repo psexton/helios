@@ -18,7 +18,9 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/brettweavnet/gosync/gosync"
 	log "github.com/cihub/seelog"
 	"github.com/mitchellh/goamz/aws"
@@ -39,16 +41,14 @@ func sunrise(conf map[string]string) (err error) {
 
 	// 1 & 2: use s3sync to download the bucket
 
-	auth, authErr := aws.GetAuth(conf["aws_access_key_id"], conf["aws_secret_access_key"])
-	if authErr != nil {
-		err = authErr
+	auth, err := aws.GetAuth(conf["aws_access_key_id"], conf["aws_secret_access_key"])
+	if err != nil {
 		return
 	}
 	source := "s3://" + conf["s3_bucket"]
-	dest, tempDirErr := ioutil.TempDir("", "helios")
+	dest, err := ioutil.TempDir("", "helios")
 	// @TODO Add deferred call to delete dest
-	if tempDirErr != nil {
-		err = tempDirErr
+	if err != nil {
 		return
 	}
 	log.Debug("auth:", auth)
@@ -57,16 +57,14 @@ func sunrise(conf map[string]string) (err error) {
 
 	syncPair := gosync.NewSyncPair(auth, source, dest)
 	syncPair.Concurrent = concurrent
-	syncErr := syncPair.Sync()
-	if syncErr != nil {
-		err = syncErr
+	err = syncPair.Sync()
+	if err != nil {
 		return
 	}
 
 	// 2.5: Get directory listing and separate tgz from json
-	fileInfos, readDirErr := ioutil.ReadDir(dest)
-	if readDirErr != nil {
-		err = readDirErr
+	fileInfos, err := ioutil.ReadDir(dest)
+	if err != nil {
 		return
 	}
 	tgzFiles := []string{}
@@ -129,28 +127,54 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	docUrl := conf["couch_url"] + "/registry/" + packageName
 	log.Debug("Document URL: ", docUrl)
 	client := &http.Client{}
-	request, err := http.NewRequest("GET", docUrl, nil)
+	request1, err := http.NewRequest("GET", docUrl, nil)
 	if err != nil {
 		return
 	}
-	response, err := client.Do(request)
+	response1, err := client.Do(request1)
 	if err != nil {
 		return
 	}
-	defer response.Body.Close()
-	responseBody, err := ioutil.ReadAll(response.Body)
+	log.Debug("GET ", docUrl, " returned ", response1.Status)
+	if response1.StatusCode != 200 {
+		err = fmt.Errorf("GET request to %s returned %d", docUrl, response1.Status)
+		return
+	}
+	defer response1.Body.Close()
+	responseBody1, err := ioutil.ReadAll(response1.Body)
 	if err != nil {
 		return
 	}
 	var serverData map[string]interface{} // holder for arbitrary JSON
-	err = json.Unmarshal(responseBody, &serverData)
+	err = json.Unmarshal(responseBody1, &serverData)
 	if err != nil {
 		return
 	}
 	log.Debug("New _rev: ", serverData["_rev"])
 
 	// Replace the revision field in our json
+	packageData["_rev"] = serverData["_rev"]
+
 	// PUT the json into Couch
+	content2, err := json.Marshal(packageData)
+	if err != nil {
+		return
+	}
+	request2, err := http.NewRequest("PUT", docUrl, bytes.NewReader(content2))
+	if err != nil {
+		return
+	}
+	request2.SetBasicAuth(conf["couch_username"], conf["couch_password"])
+	response2, err := client.Do(request2)
+	if err != nil {
+		return
+	}
+	log.Debug("PUT ", docUrl, " returned ", response2.Status)
+	if response2.StatusCode != 201 {
+		err = fmt.Errorf("PUT request to %s returned %d", docUrl, response2.Status)
+		return
+	}
+	defer response2.Body.Close()
 
 	return
 }
