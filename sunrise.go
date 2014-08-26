@@ -18,10 +18,12 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"encoding/json"
 	"github.com/brettweavnet/gosync/gosync"
 	log "github.com/cihub/seelog"
 	"github.com/mitchellh/goamz/aws"
 	"io/ioutil"
+	"net/http"
 	"os/exec"
 	"path"
 	"strings"
@@ -81,12 +83,18 @@ func sunrise(conf map[string]string) (err error) {
 
 	// 3: use npm to publish all tgz files
 	for _, tgzFile := range tgzFiles {
-		sunriseStep3(tgzFile, conf)
+		err = sunriseStep3(tgzFile, conf)
+		if err != nil {
+			return
+		}
 	}
 
 	// 4: talk to couchdb directly to overwrite the json files
 	for _, jsonFile := range jsonFiles {
-		sunriseStep4(jsonFile, conf)
+		err = sunriseStep4(jsonFile, conf)
+		if err != nil {
+			return
+		}
 	}
 
 	return
@@ -99,6 +107,50 @@ func sunriseStep3(filepath string, conf map[string]string) (err error) {
 }
 
 func sunriseStep4(filepath string, conf map[string]string) (err error) {
-	log.Info("[PLACEHOLDER] Overwriting ", filepath)
+	log.Info("Restoring ", filepath)
+
+	// Read in the JSON file
+	content, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return
+	}
+	var packageData map[string]interface{} // holder for arbitrary JSON
+	err = json.Unmarshal(content, &packageData)
+	if err != nil {
+		return
+	}
+
+	// Extract the name element
+	packageName := packageData["name"].(string) // we're pretty sure this is a string
+	log.Debug("Package name: ", packageName)
+	log.Debug("Old _rev: ", packageData["_rev"])
+
+	// GET that document from Couch
+	docUrl := conf["couch_url"] + "/registry/" + packageName
+	log.Debug("Document URL: ", docUrl)
+	client := &http.Client{}
+	request, err := http.NewRequest("GET", docUrl, nil)
+	if err != nil {
+		return
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		return
+	}
+	defer response.Body.Close()
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return
+	}
+	var serverData map[string]interface{} // holder for arbitrary JSON
+	err = json.Unmarshal(responseBody, &serverData)
+	if err != nil {
+		return
+	}
+	log.Debug("New _rev: ", serverData["_rev"])
+
+	// Replace the revision field in our json
+	// PUT the json into Couch
+
 	return
 }
