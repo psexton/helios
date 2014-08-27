@@ -15,13 +15,13 @@ You should have received a copy of the GNU General Public License
 along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
+package helios
 
-// sunset exports from npm-registry to s3
+// Sunset exports from npm-registry to s3
 // 1) talk to couchdb directly to get list of json files
 // 2) download all json files
 // 3) parse them and download all tgz attachments
 // 4) upload everything to s3
-func sunset(conf map[string]string) (err error) {
+func Sunset(conf map[string]string) (err error) {
 	return
 }

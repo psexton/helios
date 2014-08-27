@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package main
+package helios
 
 import (
 	"bytes"
@@ -32,12 +32,12 @@ import (
 	"strings"
 )
 
-// sunrise imports from s3 to npm-registry
+// Sunrise imports from s3 to npm-registry
 // 1) download bucket listing from s3
 // 2) download files from s3
 // 3) use npm to publish all tgz files
 // 4) talk to couchdb directly to overwrite the json files
-func sunrise(conf map[string]string) (err error) {
+func Sunrise(conf map[string]string) (err error) {
 	const concurrent = 20 // @MAGIC
 
 	// 1 & 2: use s3sync to download the bucket

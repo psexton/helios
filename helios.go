@@ -22,6 +22,7 @@ package main
 
 import (
 	log "github.com/cihub/seelog"
+	"github.com/psexton/helios/helios"
 	"os"
 )
 
@@ -41,10 +42,10 @@ func main() {
 
 	// call sunrise or sunset, passing it the conf data
 	if isSunrise {
-		err := sunrise(conf)
+		err := helios.Sunrise(conf)
 		exitOnError(err)
 	} else {
-		err := sunset(conf)
+		err := helios.Sunset(conf)
 		exitOnError(err)
 	}
 }
