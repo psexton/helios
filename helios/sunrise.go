@@ -125,10 +125,10 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	log.Debug("Old _rev: ", packageData["_rev"])
 
 	// GET that document from Couch
-	docUrl := conf["couch_url"] + "/registry/" + packageName
-	log.Debug("Document URL: ", docUrl)
+	docURL := conf["couch_url"] + "/registry/" + packageName
+	log.Debug("Document URL: ", docURL)
 	client := &http.Client{}
-	request1, err := http.NewRequest("GET", docUrl, nil)
+	request1, err := http.NewRequest("GET", docURL, nil)
 	if err != nil {
 		return
 	}
@@ -136,9 +136,9 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	if err != nil {
 		return
 	}
-	log.Debug("GET ", docUrl, " returned ", response1.Status)
+	log.Debug("GET ", docURL, " returned ", response1.Status)
 	if response1.StatusCode != 200 {
-		err = fmt.Errorf("GET request to %s returned %d", docUrl, response1.Status)
+		err = fmt.Errorf("GET request to %s returned %d", docURL, response1.Status)
 		return
 	}
 	defer response1.Body.Close()
@@ -161,7 +161,7 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	if err != nil {
 		return
 	}
-	request2, err := http.NewRequest("PUT", docUrl, bytes.NewReader(content2))
+	request2, err := http.NewRequest("PUT", docURL, bytes.NewReader(content2))
 	if err != nil {
 		return
 	}
@@ -170,9 +170,9 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	if err != nil {
 		return
 	}
-	log.Debug("PUT ", docUrl, " returned ", response2.Status)
+	log.Debug("PUT ", docURL, " returned ", response2.Status)
 	if response2.StatusCode != 201 {
-		err = fmt.Errorf("PUT request to %s returned %d", docUrl, response2.Status)
+		err = fmt.Errorf("PUT request to %s returned %d", docURL, response2.Status)
 		return
 	}
 	defer response2.Body.Close()
