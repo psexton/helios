@@ -172,7 +172,7 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	}
 	log.Debug("PUT ", docURL, " returned ", response2.Status)
 	if response2.StatusCode != 201 {
-		err = fmt.Errorf("PUT request to %s returned %d", docUrl, response2.Status)
+		err = fmt.Errorf("PUT request to %s returned %d", docURL, response2.Status)
 		return
 	}
 	defer response2.Body.Close()
