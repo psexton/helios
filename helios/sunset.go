@@ -18,6 +18,7 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package helios
 
 import (
+	"io/ioutil"
 	log "github.com/cihub/seelog"
 )
 
@@ -36,8 +37,14 @@ func Sunset(conf map[string]string) (err error) {
 	}
 	log.Debug("jsonDocs: ", jsonDocs)
 
-	// step 2: download ALL THE DOCUMENTS
+	tempDir, err := ioutil.TempDir("", "helios")
+	defer removeTempDir(tempDir) // delete our temp dir on exit
+	if err != nil {
+		return
+	}
+	log.Debug("tempDir: ", tempDir)
 	
+	// step 2: download ALL THE DOCUMENTS	
 
 	return
 }

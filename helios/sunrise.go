@@ -26,7 +26,6 @@ import (
 	"github.com/mitchellh/goamz/aws"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"os/exec"
 	"path"
 	"strings"
@@ -48,7 +47,7 @@ func Sunrise(conf map[string]string) (err error) {
 	}
 	source := "s3://" + conf["s3_bucket"]
 	dest, err := ioutil.TempDir("", "helios")
-	defer sunriseCleanup(dest) // delete our temp dir on exit
+	defer removeTempDir(dest) // delete our temp dir on exit
 	if err != nil {
 		return
 	}
@@ -180,7 +179,3 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	return
 }
 
-func sunriseCleanup(dirPath string) {
-	log.Info("Removing temp dir ", dirPath)
-	os.RemoveAll(dirPath)
-}
