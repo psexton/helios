@@ -19,9 +19,11 @@ package helios
 
 import (
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	log "github.com/cihub/seelog"
 	"net/http"
+	"os"
 	"path"
 )
 
@@ -72,8 +74,26 @@ func downloadPackage(packageName string, destDir string, conf Config) (err error
 	return
 }
 
-func downloadBinary(url string, destPath string, conf Config) (err error) {
-	log.Debugf("Downloading %s to %s\n", url, destPath) // @TODO STUB
+func downloadBinary(URL string, destPath string, conf Config) (err error) {
+	log.Debug("Attachment URL: ", URL)	
+	log.Debug("Saving to: ", destPath)
+
+	// Create a Writer for the File
+	out, err := os.Create(destPath)
+	defer out.Close()
+	if err != nil {
+		return
+	}
+
+	// Create a Reader for the URL
+	resp, err := http.Get(URL)
+	defer resp.Body.Close()
+	if err != nil {
+		return
+	}
+
+	// Hook them together, whoo!
+	_, err = io.Copy(out, resp.Body)
 	return
 }
 
