@@ -36,7 +36,7 @@ func main() {
 	log.Info("isSunrise: ", isSunrise)
 
 	// read in data from conf dir
-	// conf is a map[string]string
+	// conf is a helios/Config struct
 	conf, err := readConfDir(confDir)
 	exitOnError(err)
 

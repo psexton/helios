@@ -26,10 +26,10 @@ import (
 	"strings"
 )
 
-func getListOfJsonFiles(conf map[string]string) (packages []string, err error) {
+func getListOfJsonFiles(conf Config) (packages []string, err error) {
 	log.Info("Downloading package list")
 	
-	docListURL := conf["couch_url"] + "registry/_all_docs"
+	docListURL := conf.Couch.URL + "registry/_all_docs"
 	log.Debug("Doc List URL: ", docListURL)
 
 	client := &http.Client{}

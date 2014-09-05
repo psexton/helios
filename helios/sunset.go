@@ -27,7 +27,7 @@ import (
 // 2) download all json files
 // 3) parse them and download all tgz attachments
 // 4) upload everything to s3
-func Sunset(conf map[string]string) (err error) {
+func Sunset(conf Config) (err error) {
 	///const concurrent = 20 // @MAGIC
 
 	// step 1: talk to couchdb directly to get list of json files

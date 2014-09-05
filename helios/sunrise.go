@@ -36,16 +36,16 @@ import (
 // 2) download files from s3
 // 3) use npm to publish all tgz files
 // 4) talk to couchdb directly to overwrite the json files
-func Sunrise(conf map[string]string) (err error) {
+func Sunrise(conf Config) (err error) {
 	const concurrent = 20 // @MAGIC
 
 	// 1 & 2: use s3sync to download the bucket
 
-	auth, err := aws.GetAuth(conf["aws_access_key_id"], conf["aws_secret_access_key"])
+	auth, err := aws.GetAuth(conf.AWS.AccessKeyID, conf.AWS.SecretAccessKey)
 	if err != nil {
 		return
 	}
-	source := "s3://" + conf["s3_bucket"]
+	source := "s3://" + conf.AWS.S3BucketName
 	dest, err := ioutil.TempDir("", "helios")
 	defer removeTempDir(dest) // delete our temp dir on exit
 	if err != nil {
@@ -81,7 +81,7 @@ func Sunrise(conf map[string]string) (err error) {
 
 	// 3: use npm to publish all tgz files
 	for _, tgzFile := range tgzFiles {
-		err = sunriseStep3(tgzFile, conf)
+		err = sunriseStep3(tgzFile)
 		if err != nil {
 			return
 		}
@@ -98,13 +98,13 @@ func Sunrise(conf map[string]string) (err error) {
 	return
 }
 
-func sunriseStep3(filepath string, conf map[string]string) (err error) {
+func sunriseStep3(filepath string) (err error) {
 	log.Info("Publishing ", filepath)
 	err = exec.Command("npm", "publish", filepath).Run()
 	return
 }
 
-func sunriseStep4(filepath string, conf map[string]string) (err error) {
+func sunriseStep4(filepath string, conf Config) (err error) {
 	log.Info("Restoring ", filepath)
 
 	// Read in the JSON file
@@ -124,7 +124,7 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	log.Debug("Old _rev: ", packageData["_rev"])
 
 	// GET that document from Couch
-	docURL := conf["couch_url"] + "/registry/" + packageName
+	docURL := conf.Couch.URL + "/registry/" + packageName
 	log.Debug("Document URL: ", docURL)
 	client := &http.Client{}
 	request1, err := http.NewRequest("GET", docURL, nil)
@@ -164,7 +164,7 @@ func sunriseStep4(filepath string, conf map[string]string) (err error) {
 	if err != nil {
 		return
 	}
-	request2.SetBasicAuth(conf["couch_username"], conf["couch_password"])
+	request2.SetBasicAuth(conf.Couch.Username, conf.Couch.Password)
 	response2, err := client.Do(request2)
 	if err != nil {
 		return
