@@ -44,8 +44,15 @@ func Sunset(conf Config) (err error) {
 	}
 	log.Debug("tempDir: ", tempDir)
 	
-	// step 2: download ALL THE DOCUMENTS	
-
+	// steps 2-3: download ALL THE THINGS	
+	for _, jsonDoc := range jsonDocs {
+		err = downloadPackage(jsonDoc, tempDir, conf)
+		if err != nil {
+			return
+		}
+	}
+	
+	// @TODO step 4: sync the dir to s3
 	return
 }
 
