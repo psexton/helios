@@ -21,7 +21,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/brettweavnet/gosync/gosync"
+	"github.com/psexton/gosync/gosync"
 	log "github.com/cihub/seelog"
 	"github.com/mitchellh/goamz/aws"
 	"io/ioutil"

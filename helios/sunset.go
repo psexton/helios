@@ -18,7 +18,7 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package helios
 
 import (
-	"github.com/brettweavnet/gosync/gosync"
+	"github.com/psexton/gosync/gosync"
 	"github.com/mitchellh/goamz/aws"
 	"io/ioutil"
 	log "github.com/cihub/seelog"
