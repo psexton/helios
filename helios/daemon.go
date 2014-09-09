@@ -28,7 +28,34 @@ import (
 // * Wait 30 seconds
 func Daemon(conf Config) (err error) {
 	for {
-		log.Debug("Daemon iterating")
+		log.Info("Daemon running...")
+
+		// First, determine if registry is empty
+		// If it is, we'll run sunrise.
+		// If it isn't, we'll run sunset.
+		jsonDocs, subErr := getListOfJsonFiles(conf)
+		if subErr != nil {
+			err = subErr
+			return
+		}
+		log.Debug("jsonDocs: ", jsonDocs)
+
+		if len(jsonDocs) == 0 {
+			log.Debug("Sunrise time!")
+			err = Sunrise(conf)
+			if err != nil {
+				return
+			}
+		} else {
+			log.Debug("Sunset time!")
+			err = Sunset(conf)
+			if err != nil {
+				return
+			}
+		}
+
+		// Go have some tea
+		log.Debug("Nipping out for a bit of tea...")
 		time.Sleep(30 * time.Second)
 	}
 }
