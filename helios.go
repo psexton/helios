@@ -30,10 +30,10 @@ func main() {
 	defer log.Flush()
 
 	// read in CLI flags and arguments
-	confDir, isSunrise, err := readCliFlags()
+	confDir, command, err := readCliFlags()
 	exitOnError(err)
 	log.Info("confDir: ", confDir)
-	log.Info("isSunrise: ", isSunrise)
+	// command info message moved into switch block
 
 	// read in data from conf dir
 	// conf is a helios/Config struct
@@ -41,11 +41,18 @@ func main() {
 	exitOnError(err)
 
 	// call sunrise or sunset, passing it the conf data
-	if isSunrise {
+	switch command {
+	case sunriseCmd:
+		log.Info("command: sunrise")
 		err := helios.Sunrise(conf)
 		exitOnError(err)
-	} else {
+	case sunsetCmd:
+		log.Info("command: sunset")
 		err := helios.Sunset(conf)
+		exitOnError(err)
+	case daemonCmd:
+		log.Info("command: daemon")
+		err := helios.Daemon(conf)
 		exitOnError(err)
 	}
 }
