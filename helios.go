@@ -25,7 +25,6 @@ import (
 	"github.com/psexton/helios/helios"
 	"os"
 	"path"
-	"runtime"
 )
 
 func main() {
@@ -37,7 +36,9 @@ func main() {
 
 	// If command is daemon, we want to reroute log output to a file asap
 	if command == daemonCmd {
-		sendLogsToFile()
+		// Wherever confDir is, put logDir in the same parent directory
+		logDir := path.Join(path.Dir(confDir), "log")
+		sendLogsToFile(logDir)
 	}
 
 	log.Info("confDir: ", confDir)
@@ -74,10 +75,8 @@ func exitOnError(e error) {
 	}
 }
 
-func sendLogsToFile() {
-	// Store logfiles in ./log relative to our executable @HACK
-	_, callerpath, _, _ := runtime.Caller(1)
-	filePath := path.Join(path.Dir(callerpath), "log", "helios.log")
+func sendLogsToFile(logDir string) {
+	filePath := path.Join(logDir, "helios.log")
 	maxSize := "1000000"
 
 	loggerConfig := "<seelog><outputs><rollingfile type=\"size\" filename=\"" + filePath + "\" maxsize=\"" + maxSize + "\" maxrolls=\"5\"/></outputs></seelog>"
