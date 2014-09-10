@@ -36,9 +36,7 @@ func main() {
 
 	// If command is daemon, we want to reroute log output to a file asap
 	if command == daemonCmd {
-		// Wherever confDir is, put logDir in the same parent directory
-		logDir := path.Join(path.Dir(confDir), "log")
-		sendLogsToFile(logDir)
+		sendLogsToFile()
 	}
 
 	log.Info("confDir: ", confDir)
@@ -75,8 +73,9 @@ func exitOnError(e error) {
 	}
 }
 
-func sendLogsToFile(logDir string) {
-	filePath := path.Join(logDir, "helios.log")
+func sendLogsToFile() {
+	// put logs in system defined temp dir
+	filePath := path.Join(os.TempDir(), "helios.log")
 	maxSize := "1000000"
 
 	loggerConfig := "<seelog><outputs><rollingfile type=\"size\" filename=\"" + filePath + "\" maxsize=\"" + maxSize + "\" maxrolls=\"5\"/></outputs></seelog>"
