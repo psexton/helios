@@ -24,6 +24,8 @@ import (
 	log "github.com/cihub/seelog"
 	"github.com/psexton/helios/helios"
 	"os"
+	"path"
+	"runtime"
 )
 
 func main() {
@@ -32,6 +34,12 @@ func main() {
 	// read in CLI flags and arguments
 	confDir, command, err := readCliFlags()
 	exitOnError(err)
+
+	// If command is daemon, we want to reroute log output to a file asap
+	if command == daemonCmd {
+		sendLogsToFile()
+	}
+
 	log.Info("confDir: ", confDir)
 	// command info message moved into switch block
 
@@ -64,4 +72,15 @@ func exitOnError(e error) {
 		log.Flush()
 		os.Exit(1)
 	}
+}
+
+func sendLogsToFile() {
+	// Store logfiles in ./log relative to our executable @HACK
+	_, callerpath, _, _ := runtime.Caller(1)
+	filePath := path.Join(path.Dir(callerpath), "log", "helios.log")
+	maxSize := "1000000"
+
+	loggerConfig := "<seelog><outputs><rollingfile type=\"size\" filename=\"" + filePath + "\" maxsize=\"" + maxSize + "\" maxrolls=\"5\"/></outputs></seelog>"
+	logger, _ := log.LoggerFromConfigAsString(loggerConfig)
+	log.ReplaceLogger(logger)
 }
