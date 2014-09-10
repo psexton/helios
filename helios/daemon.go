@@ -18,8 +18,8 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package helios
 
 import (
-	"time"
 	log "github.com/cihub/seelog"
+	"time"
 )
 
 // Daemon loops infinitely
@@ -59,4 +59,3 @@ func Daemon(conf Config) (err error) {
 		time.Sleep(30 * time.Second)
 	}
 }
-

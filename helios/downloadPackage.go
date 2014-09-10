@@ -19,9 +19,9 @@ package helios
 
 import (
 	"encoding/json"
+	log "github.com/cihub/seelog"
 	"io"
 	"io/ioutil"
-	log "github.com/cihub/seelog"
 	"net/http"
 	"os"
 	"path"
@@ -33,23 +33,23 @@ func downloadPackage(packageName string, destDir string, conf Config) (err error
 
 	docURL := conf.Couch.URL + "registry/" + packageName
 	log.Debug("Doc URL: ", docURL)
-	
+
 	// Download the JSON into memory
 	resp, err := http.Get(docURL)
-  	if err != nil {
+	if err != nil {
 		return
 	}
-  	defer resp.Body.Close()
-  	body, err := ioutil.ReadAll(resp.Body)
-  	if err != nil {
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
 		return
 	}
 
 	// Write it to disk
-	filePath := path.Join(destDir, packageName + ".json")
+	filePath := path.Join(destDir, packageName+".json")
 	log.Debug("Saving to: ", filePath)
-  	err = ioutil.WriteFile(filePath, body, 0666)
-  	if err != nil {
+	err = ioutil.WriteFile(filePath, body, 0666)
+	if err != nil {
 		return
 	}
 
@@ -75,7 +75,7 @@ func downloadPackage(packageName string, destDir string, conf Config) (err error
 }
 
 func downloadBinary(URL string, destPath string, conf Config) (err error) {
-	log.Debug("Attachment URL: ", URL)	
+	log.Debug("Attachment URL: ", URL)
 	log.Debug("Saving to: ", destPath)
 
 	// Create a Writer for the File
@@ -96,4 +96,3 @@ func downloadBinary(URL string, destPath string, conf Config) (err error) {
 	_, err = io.Copy(out, resp.Body)
 	return
 }
-

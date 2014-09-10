@@ -18,10 +18,10 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package helios
 
 import (
-	"github.com/psexton/gosync/gosync"
-	"github.com/mitchellh/goamz/aws"
-	"io/ioutil"
 	log "github.com/cihub/seelog"
+	"github.com/mitchellh/goamz/aws"
+	"github.com/psexton/gosync/gosync"
+	"io/ioutil"
 )
 
 // Sunset exports from npm-registry to s3
@@ -45,15 +45,15 @@ func Sunset(conf Config) (err error) {
 		return
 	}
 	log.Debug("tempDir: ", tempDir)
-	
-	// steps 2-3: download ALL THE THINGS	
+
+	// steps 2-3: download ALL THE THINGS
 	for _, jsonDoc := range jsonDocs {
 		err = downloadPackage(jsonDoc, tempDir, conf)
 		if err != nil {
 			return
 		}
 	}
-	
+
 	// step 4: sync the dir to s3
 	err = syncToS3(tempDir, conf)
 

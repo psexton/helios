@@ -21,9 +21,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/psexton/gosync/gosync"
 	log "github.com/cihub/seelog"
 	"github.com/mitchellh/goamz/aws"
+	"github.com/psexton/gosync/gosync"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
@@ -178,4 +178,3 @@ func sunriseStep4(filepath string, conf Config) (err error) {
 
 	return
 }
-

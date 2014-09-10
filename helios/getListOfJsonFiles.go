@@ -28,7 +28,7 @@ import (
 
 func getListOfJsonFiles(conf Config) (packages []string, err error) {
 	log.Info("Downloading package list")
-	
+
 	docListURL := conf.Couch.URL + "registry/_all_docs"
 	log.Debug("Doc List URL: ", docListURL)
 
@@ -56,7 +56,7 @@ func getListOfJsonFiles(conf Config) (packages []string, err error) {
 	if err != nil {
 		return
 	}
-	
+
 	rows := serverData["rows"].([]interface{}) // JSON array
 
 	packages = []string{}
@@ -70,4 +70,3 @@ func getListOfJsonFiles(conf Config) (packages []string, err error) {
 
 	return
 }
-
