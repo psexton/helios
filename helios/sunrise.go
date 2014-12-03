@@ -26,7 +26,6 @@ import (
 	"github.com/psexton/gosync/gosync"
 	"io/ioutil"
 	"net/http"
-	"os/exec"
 	"path"
 	"strings"
 )
@@ -34,8 +33,7 @@ import (
 // Sunrise imports from s3 to npm-registry
 // 1) download bucket listing from s3
 // 2) download files from s3
-// 3) use npm to publish all tgz files
-// 4) talk to couchdb directly to overwrite the json files
+// 3) talk to couchdb directly to overwrite the registry documents
 func Sunrise(conf Config) (err error) {
 	const concurrent = 20 // @MAGIC
 
@@ -67,40 +65,22 @@ func Sunrise(conf Config) (err error) {
 	if err != nil {
 		return
 	}
-	tgzFiles := []string{}
 	jsonFiles := []string{}
 	for _, fileInfo := range fileInfos {
 		filePath := path.Join(dest, fileInfo.Name())
-		if strings.HasSuffix(filePath, ".tgz") {
-			tgzFiles = append(tgzFiles, filePath)
-		}
 		if strings.HasSuffix(filePath, ".json") {
 			jsonFiles = append(jsonFiles, filePath)
 		}
 	}
 
-	// 3: use npm to publish all tgz files
-	for _, tgzFile := range tgzFiles {
-		err = sunriseStep3(tgzFile)
-		if err != nil {
-			return
-		}
-	}
-
-	// 4: talk to couchdb directly to overwrite the json files
+	// 3: call restorePackage on each json file
 	for _, jsonFile := range jsonFiles {
-		err = sunriseStep4(jsonFile, conf)
+		err = restorePackage(jsonFile, conf)
 		if err != nil {
 			return
 		}
 	}
 
-	return
-}
-
-func sunriseStep3(filepath string) (err error) {
-	log.Info("Publishing ", filepath)
-	err = exec.Command("npm", "publish", filepath).Run()
 	return
 }
 
