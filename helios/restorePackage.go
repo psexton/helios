@@ -23,6 +23,7 @@ import (
 	log "github.com/cihub/seelog"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path"
 	"strings"
 )
@@ -73,12 +74,47 @@ func restorePackage(filePath string, conf Config) (err error) {
 // Adds an attachment to an existing document in the registry database
 // Returns the new revision ID for the document
 func addAttachment(packageName string, tgzFilePath string, oldRevision string, conf Config) (revision string, err error) {
+	// Figure out the URL to upload to
 	_, fileName := path.Split(tgzFilePath)	
 	tgzURL := conf.Couch.URL + "registry/" + packageName + "/" + fileName + "?rev=" + oldRevision
 	log.Debug("Uploading attachment from ", tgzFilePath, " to ", tgzURL)	
-	// @TODO
+	
+	// Make an io.reader for the file
+	file, err := os.Open(tgzFilePath)
+	if err != nil {
+		return
+	}
 
-	revision = oldRevision
+	// Make the request
+	client := &http.Client{}
+	request, err := http.NewRequest("PUT", tgzURL, file)
+	if err != nil {
+		return
+	}
+	// NOTE: Apparently we don't need to set Content-Type header to "application/octet-stream"?
+	request.SetBasicAuth(conf.Couch.Username, conf.Couch.Password)
+	response, err := client.Do(request)
+	if err != nil {
+		return
+	}
+	log.Debug("File PUT ", tgzURL, " returned ", response.Status)
+	if response.StatusCode != 201 {
+		err = fmt.Errorf("PUT request to %s returned %d", tgzURL, response.StatusCode)
+		return
+	}
+
+	// Get the new doc rev from the response
+	defer response.Body.Close()	
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return
+	}
+	var serverData map[string]interface{} // holder for arbitrary JSON
+	err = json.Unmarshal(responseBody, &serverData)
+	if err != nil {
+		return
+	}
+	revision = serverData["rev"].(string) // again, we're pretty sure this is a string
 
 	return
 }
