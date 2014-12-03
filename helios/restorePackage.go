@@ -23,6 +23,7 @@ import (
 	log "github.com/cihub/seelog"
 	"io/ioutil"
 	"net/http"
+	"path"
 	"strings"
 )
 
@@ -53,10 +54,28 @@ func restorePackage(filePath string, conf Config) (err error) {
 	log.Debug("Doc revision: ", docRevision)
 
 	// Parse attachments array from JSON
-	// Iterate over array uploading attachments
-	// @TODO
+	dirPath, _ := path.Split(filePath)
+	attachments := packageData["_attachments"].(map[string]interface{})
+	for fileName, _ := range attachments {
+		tgzFilePath := path.Join(dirPath, fileName)
+		docRevision, err = addAttachment(packageName, tgzFilePath, conf)
+		if err != nil {
+			return
+		}
+	}
 
 	// Overwrite document with full json
+	// @TODO
+
+	return
+}
+
+// Adds an attachment to an existing document in the registry database
+// Returns the new revision ID for the document
+func addAttachment(packageName string, tgzFilePath string, conf Config) (revision string, err error) {
+	_, fileName := path.Split(tgzFilePath)	
+	tgzURL := conf.Couch.URL + "registry/" + packageName + "/" + fileName
+	log.Debug("Uploading attachment from ", tgzFilePath, " to ", tgzURL)	
 	// @TODO
 
 	return
@@ -102,3 +121,4 @@ func putEmptyDocument(packageName string, conf Config) (revision string, err err
 
 	return
 }
+
