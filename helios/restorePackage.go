@@ -58,7 +58,7 @@ func restorePackage(filePath string, conf Config) (err error) {
 	attachments := packageData["_attachments"].(map[string]interface{})
 	for fileName, _ := range attachments {
 		tgzFilePath := path.Join(dirPath, fileName)
-		docRevision, err = addAttachment(packageName, tgzFilePath, conf)
+		docRevision, err = addAttachment(packageName, tgzFilePath, docRevision, conf)
 		if err != nil {
 			return
 		}
@@ -72,11 +72,13 @@ func restorePackage(filePath string, conf Config) (err error) {
 
 // Adds an attachment to an existing document in the registry database
 // Returns the new revision ID for the document
-func addAttachment(packageName string, tgzFilePath string, conf Config) (revision string, err error) {
+func addAttachment(packageName string, tgzFilePath string, oldRevision string, conf Config) (revision string, err error) {
 	_, fileName := path.Split(tgzFilePath)	
-	tgzURL := conf.Couch.URL + "registry/" + packageName + "/" + fileName
+	tgzURL := conf.Couch.URL + "registry/" + packageName + "/" + fileName + "?rev=" + oldRevision
 	log.Debug("Uploading attachment from ", tgzFilePath, " to ", tgzURL)	
 	// @TODO
+
+	revision = oldRevision
 
 	return
 }
