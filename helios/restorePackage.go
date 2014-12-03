@@ -18,6 +18,7 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package helios
 
 import (
+	"bytes"
 	"fmt"
 	"encoding/json"
 	log "github.com/cihub/seelog"
@@ -66,7 +67,42 @@ func restorePackage(filePath string, conf Config) (err error) {
 	}
 
 	// Overwrite document with full json
-	// @TODO
+	err = overwriteDocument(packageData, docRevision, conf)
+
+	return
+}
+
+func overwriteDocument(packageData map[string]interface{}, revision string, conf Config) (err error) {
+	packageName := packageData["name"].(string)
+	docURL := conf.Couch.URL + "registry/" + packageName
+	log.Debug("Overwriting document at: ", docURL)	
+
+	// Update our JSON and Marshal it
+	delete(packageData, "_id") // Couch sets _id and _attachments & will balk if we try to set them ourselves
+	delete(packageData, "_attachments")
+	packageData["_rev"] = revision // need to pass up the current doc revision to overwrite
+	content, err := json.Marshal(packageData)
+	if err != nil {
+		return
+	}
+
+	// Make the PUT request.
+	client := &http.Client{}
+	request, err := http.NewRequest("PUT", docURL, bytes.NewReader(content))
+	if err != nil {
+		return
+	}
+	request.SetBasicAuth(conf.Couch.Username, conf.Couch.Password)
+	response, err := client.Do(request)
+	if err != nil {
+		return
+	}
+	log.Debug("PUT ", docURL, " returned ", response.Status)
+	if response.StatusCode != 201 {
+		err = fmt.Errorf("PUT request to %s returned %d", docURL, response.Status)
+		return
+	}
+	defer response.Body.Close()
 
 	return
 }

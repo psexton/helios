@@ -18,14 +18,10 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package helios
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	log "github.com/cihub/seelog"
 	"github.com/mitchellh/goamz/aws"
 	"github.com/psexton/gosync/gosync"
 	"io/ioutil"
-	"net/http"
 	"path"
 	"strings"
 )
@@ -84,77 +80,3 @@ func Sunrise(conf Config) (err error) {
 	return
 }
 
-func sunriseStep4(filepath string, conf Config) (err error) {
-	log.Info("Restoring ", filepath)
-
-	// Read in the JSON file
-	content, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return
-	}
-	var packageData map[string]interface{} // holder for arbitrary JSON
-	err = json.Unmarshal(content, &packageData)
-	if err != nil {
-		return
-	}
-
-	// Extract the name element
-	packageName := packageData["name"].(string) // we're pretty sure this is a string
-	log.Debug("Package name: ", packageName)
-	log.Debug("Old _rev: ", packageData["_rev"])
-
-	// GET that document from Couch
-	docURL := conf.Couch.URL + "/registry/" + packageName
-	log.Debug("Document URL: ", docURL)
-	client := &http.Client{}
-	request1, err := http.NewRequest("GET", docURL, nil)
-	if err != nil {
-		return
-	}
-	response1, err := client.Do(request1)
-	if err != nil {
-		return
-	}
-	log.Debug("GET ", docURL, " returned ", response1.Status)
-	if response1.StatusCode != 200 {
-		err = fmt.Errorf("GET request to %s returned %d", docURL, response1.Status)
-		return
-	}
-	defer response1.Body.Close()
-	responseBody1, err := ioutil.ReadAll(response1.Body)
-	if err != nil {
-		return
-	}
-	var serverData map[string]interface{} // holder for arbitrary JSON
-	err = json.Unmarshal(responseBody1, &serverData)
-	if err != nil {
-		return
-	}
-	log.Debug("New _rev: ", serverData["_rev"])
-
-	// Replace the revision field in our json
-	packageData["_rev"] = serverData["_rev"]
-
-	// PUT the json into Couch
-	content2, err := json.Marshal(packageData)
-	if err != nil {
-		return
-	}
-	request2, err := http.NewRequest("PUT", docURL, bytes.NewReader(content2))
-	if err != nil {
-		return
-	}
-	request2.SetBasicAuth(conf.Couch.Username, conf.Couch.Password)
-	response2, err := client.Do(request2)
-	if err != nil {
-		return
-	}
-	log.Debug("PUT ", docURL, " returned ", response2.Status)
-	if response2.StatusCode != 201 {
-		err = fmt.Errorf("PUT request to %s returned %d", docURL, response2.Status)
-		return
-	}
-	defer response2.Body.Close()
-
-	return
-}
