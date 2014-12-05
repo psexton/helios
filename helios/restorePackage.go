@@ -77,9 +77,26 @@ func overwriteDocument(packageData map[string]interface{}, revision string, conf
 	docURL := conf.Couch.URL + "registry/" + packageName
 	log.Debug("Overwriting document at: ", docURL)	
 
+	// We need to retrieve JSON for current document state so we don't lose _attachments when we restore
+	// the version from s3.
+	response1, err := http.Get(docURL)
+	if err != nil {
+		return
+	}
+	defer response1.Body.Close()
+	body, err := ioutil.ReadAll(response1.Body)
+	if err != nil {
+		return
+	}
+	var serverDoc map[string]interface{} // holder for root JSON object
+	err = json.Unmarshal(body, &serverDoc)
+	if err != nil {
+		return
+	}
+
 	// Update our JSON and Marshal it
-	delete(packageData, "_id") // Couch sets _id and _attachments & will balk if we try to set them ourselves
-	delete(packageData, "_attachments")
+	delete(packageData, "_id") // Couch sets _id & will balk if we try to set them ourselves
+	packageData["_attachments"] = serverDoc["_attachments"] // Copy in _attachments from server
 	packageData["_rev"] = revision // need to pass up the current doc revision to overwrite
 	content, err := json.Marshal(packageData)
 	if err != nil {
@@ -93,16 +110,16 @@ func overwriteDocument(packageData map[string]interface{}, revision string, conf
 		return
 	}
 	request.SetBasicAuth(conf.Couch.Username, conf.Couch.Password)
-	response, err := client.Do(request)
+	response2, err := client.Do(request)
 	if err != nil {
 		return
 	}
-	log.Debug("PUT ", docURL, " returned ", response.Status)
-	if response.StatusCode != 201 {
-		err = fmt.Errorf("PUT request to %s returned %d", docURL, response.Status)
+	log.Debug("PUT ", docURL, " returned ", response2.Status)
+	if response2.StatusCode != 201 {
+		err = fmt.Errorf("PUT request to %s returned %d", docURL, response2.Status)
 		return
 	}
-	defer response.Body.Close()
+	defer response2.Body.Close()
 
 	return
 }
