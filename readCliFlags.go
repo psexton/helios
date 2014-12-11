@@ -24,11 +24,11 @@ import (
 )
 
 // readCliFlags reads in command line arguments and flags and validates them
-func readCliFlags() (confDir string, command int, err error) {
+func readCliFlags() (confPath string, command int, err error) {
 	sunrisePtr := flag.Bool("sunrise", false, "Import data from s3 to couchdb")
 	sunsetPtr := flag.Bool("sunset", false, "Export data from couchdb to s3")
 	daemonPtr := flag.Bool("daemon", false, "Run as a CouchDB os_daemon")
-	confDirPtr := flag.String("confdir", "/path/to/conf/files", "Directory containing conf files")
+	confPtr := flag.String("conf", "/path/to/conf/files", "Directory containing conf files")
 	flag.Parse()
 
 	// Err out if command isn't "sunrise" or "sunset" or "daemon"
@@ -51,9 +51,9 @@ func readCliFlags() (confDir string, command int, err error) {
 		command = daemonCmd
 	}
 
-	// Err out if confdir isn't a directory
+	// Err out if conf isn't a directory
 	//	First check if the path exists by trying to open it as a file
-	file, fileErr := os.Open(*confDirPtr)
+	file, fileErr := os.Open(*confPtr)
 	if fileErr != nil {
 		err = fileErr
 		return
@@ -65,9 +65,9 @@ func readCliFlags() (confDir string, command int, err error) {
 		return
 	}
 	if !fileStat.IsDir() {
-		err = fmt.Errorf("\"%s\" is not a directory", *confDirPtr)
+		err = fmt.Errorf("\"%s\" is not a directory", *confPtr)
 		return
 	}
-	confDir = *confDirPtr
+	confPath = *confPtr
 	return
 }

@@ -31,7 +31,7 @@ func main() {
 	defer log.Flush()
 
 	// read in CLI flags and arguments
-	confDir, command, err := readCliFlags()
+	confPath, command, err := readCliFlags()
 	exitOnError(err)
 
 	// If command is daemon, we want to reroute log output to a file asap
@@ -39,12 +39,12 @@ func main() {
 		sendLogsToFile()
 	}
 
-	log.Info("confDir: ", confDir)
+	log.Info("confPath: ", confPath)
 	// command info message moved into switch block
 
 	// read in data from conf dir
 	// conf is a helios/Config struct
-	conf, err := readConf(confDir)
+	conf, err := readConf(confPath)
 	exitOnError(err)
 
 	// call sunrise or sunset, passing it the conf data
