@@ -24,10 +24,10 @@ import (
 	"strings"
 )
 
-// readConfDir takes a directory full of text files, and puts it into a map
+// readConf takes a directory full of text files, and puts it into a map
 // Filenames become keys, and file contents become values
 // (Filenames are assumed to have no file extensions: e.g. ".txt")
-func readConfDir(confDirPath string) (conf helios.Config, err error) {
+func readConf(confDirPath string) (conf helios.Config, err error) {
 	// Get directory listing
 	fileInfos, readDirErr := ioutil.ReadDir(confDirPath)
 	if readDirErr != nil { // bail out

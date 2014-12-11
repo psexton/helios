@@ -44,7 +44,7 @@ func main() {
 
 	// read in data from conf dir
 	// conf is a helios/Config struct
-	conf, err := readConfDir(confDir)
+	conf, err := readConf(confDir)
 	exitOnError(err)
 
 	// call sunrise or sunset, passing it the conf data
