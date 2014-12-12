@@ -42,7 +42,7 @@ func main() {
 	log.Info("confPath: ", confPath)
 	// command info message moved into switch block
 
-	// read in data from conf dir
+	// read in data from json conf file
 	// conf is a helios/Config struct
 	conf, err := readConf(confPath)
 	exitOnError(err)

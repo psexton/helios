@@ -18,18 +18,14 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package helios
 
 type Config struct {
-	AWS
-	Couch
-}
-
-type AWS struct {
-	AccessKeyID     string
-	SecretAccessKey string
-	S3BucketName    string
-}
-
-type Couch struct {
-	Username string
-	Password string
-	URL      string
+	AWS struct {
+		AccessKeyID     string
+		SecretAccessKey string
+		S3BucketName    string
+	}
+	Couch struct {
+		Username string
+		Password string
+		URL      string
+	}
 }

@@ -18,45 +18,24 @@ along with Helios.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/psexton/helios/helios"
 	"io/ioutil"
-	"path"
-	"strings"
 )
 
-// readConf takes a directory full of text files, and puts it into a map
-// Filenames become keys, and file contents become values
-// (Filenames are assumed to have no file extensions: e.g. ".txt")
-func readConf(confDirPath string) (conf helios.Config, err error) {
-	// Get directory listing
-	fileInfos, readDirErr := ioutil.ReadDir(confDirPath)
-	if readDirErr != nil { // bail out
-		err = readDirErr
+// readConf takes a json file, and decodes it into a helios/Config object
+func readConf(confPath string) (conf helios.Config, err error) {
+	// Read the file into a byte slice
+	fileContents, err := ioutil.ReadFile(confPath)
+	if err != nil {
 		return
 	}
 
-	// Read the files
-	data := make(map[string]string)
-	for _, fileInfo := range fileInfos {
-		filePath := path.Join(confDirPath, fileInfo.Name())
-		contents, fileErr := ioutil.ReadFile(filePath)
-		if fileErr != nil { // bail out
-			err = fileErr
-			return
-		}
-		// Assign into map
-		key := fileInfo.Name()
-		value := strings.Trim(string(contents), "\n") // strip out trailing newline
-		data[key] = value
-	}
+	// Unmarshal
+	err = json.Unmarshal(fileContents, &conf)
 
-	// Populate the helios.Config struct from the map
-	conf.AWS.AccessKeyID = data["aws_access_key_id"]
-	conf.AWS.SecretAccessKey = data["aws_secret_access_key"]
-	conf.AWS.S3BucketName = data["s3_bucket"]
-	conf.Couch.Username = data["couch_username"]
-	conf.Couch.Password = data["couch_password"]
-	conf.Couch.URL = data["couch_url"]
+	// There's no step 3! Also chaos theory.
 
 	return
 }

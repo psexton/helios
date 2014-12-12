@@ -51,21 +51,21 @@ func readCliFlags() (confPath string, command int, err error) {
 		command = daemonCmd
 	}
 
-	// Err out if conf isn't a directory
+	// Err out if conf file doesn't exist
 	//	First check if the path exists by trying to open it as a file
 	file, fileErr := os.Open(*confPtr)
 	if fileErr != nil {
 		err = fileErr
 		return
 	}
-	//	Then Stat it to check it's a dir
+	//	Then Stat it to check it's not a dir
 	fileStat, statErr := file.Stat()
 	if statErr != nil {
 		err = statErr
 		return
 	}
-	if !fileStat.IsDir() {
-		err = fmt.Errorf("\"%s\" is not a directory", *confPtr)
+	if fileStat.IsDir() {
+		err = fmt.Errorf("\"%s\" is a directory", *confPtr)
 		return
 	}
 	confPath = *confPtr
