@@ -39,15 +39,16 @@ func Sunrise(conf Config) (err error) {
 	if err != nil {
 		return
 	}
+	// create temp dir and do debug output
 	source := "s3://" + conf.AWS.S3BucketName
 	dest, err := ioutil.TempDir("", "helios")
 	defer removeTempDir(dest) // delete our temp dir on exit
 	if err != nil {
 		return
 	}
-	log.Debug("auth:", auth)
-	log.Debug("source:", source)
-	log.Debug("dest:", dest)
+	log.Debug("source: ", source)
+	log.Debug("temp: ", dest)
+	log.Debug("dest: ", conf.Couch.URL)
 
 	syncPair := gosync.NewSyncPair(auth, source, dest)
 	syncPair.Concurrent = concurrent

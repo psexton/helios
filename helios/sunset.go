@@ -32,19 +32,23 @@ import (
 func Sunset(conf Config) (err error) {
 	///const concurrent = 20 // @MAGIC
 
+	// create temp dir and do debug output
+	tempDir, err := ioutil.TempDir("", "helios")
+	defer removeTempDir(tempDir) // delete our temp dir on exit
+	if err != nil {
+		return
+	}
+	dest := "s3://" + conf.AWS.S3BucketName
+	log.Debug("source: ", conf.Couch.URL)
+	log.Debug("temp: ", tempDir)
+	log.Debug("dest: ", dest)
+
 	// step 1: talk to couchdb directly to get list of json files
 	jsonDocs, err := getListOfJsonFiles(conf)
 	if err != nil {
 		return
 	}
 	log.Debug("jsonDocs: ", jsonDocs)
-
-	tempDir, err := ioutil.TempDir("", "helios")
-	defer removeTempDir(tempDir) // delete our temp dir on exit
-	if err != nil {
-		return
-	}
-	log.Debug("tempDir: ", tempDir)
 
 	// steps 2-3: download ALL THE THINGS
 	for _, jsonDoc := range jsonDocs {
@@ -55,21 +59,18 @@ func Sunset(conf Config) (err error) {
 	}
 
 	// step 4: sync the dir to s3
-	err = syncToS3(tempDir, conf)
+	err = syncToS3(tempDir, dest, conf)
 
 	return
 }
 
-func syncToS3(sourceDir string, conf Config) (err error) {
+func syncToS3(sourceDir string, dest string, conf Config) (err error) {
 	const concurrent = 20 // @MAGIC
 	auth, err := aws.GetAuth(conf.AWS.AccessKeyID, conf.AWS.SecretAccessKey)
 	if err != nil {
 		return
 	}
-	dest := "s3://" + conf.AWS.S3BucketName
-	log.Debug("auth:", auth)
-	log.Debug("source:", sourceDir)
-	log.Debug("dest:", dest)
+	
 
 	syncPair := gosync.NewSyncPair(auth, sourceDir, dest)
 	syncPair.Concurrent = concurrent

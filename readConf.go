@@ -19,7 +19,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/psexton/helios/helios"
 	"io/ioutil"
 )
