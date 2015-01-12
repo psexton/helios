@@ -28,4 +28,5 @@ type Config struct {
 		Password string
 		URL      string
 	}
+	DaemonPause string
 }

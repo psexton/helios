@@ -25,8 +25,14 @@ import (
 // Daemon loops infinitely
 // * If getListOfJsonFiles returns empty, run Helios.Sunrise
 // * Otherwise run Helios.Sunset
-// * Wait 30 seconds
+// * Then wait a bit
 func Daemon(conf Config) (err error) {
+	// First parse the duration from the config json
+	pauseDuration, err := time.ParseDuration(conf.DaemonPause);
+	if err != nil {
+		return
+	}
+
 	for {
 		log.Info("Daemon running...")
 
@@ -56,6 +62,6 @@ func Daemon(conf Config) (err error) {
 
 		// Go have some tea
 		log.Debug("Nipping out for a bit of tea...")
-		time.Sleep(30 * time.Second)
+		time.Sleep(pauseDuration)
 	}
 }
