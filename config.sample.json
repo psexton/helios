@@ -1,0 +1,13 @@
+{
+    "AWS": {
+        "AccessKeyID": "XXXXXXXXXXXXXXXXXXXX",
+        "SecretAccessKey": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "S3BucketName": "mabucket"
+    },
+    "Couch": {
+        "Username": "helios-admin",
+        "Password": "swordfish",
+        "URL": "http://localhost:5984/"
+    },
+    "DaemonPause": "5m"
+}
