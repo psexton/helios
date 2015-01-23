@@ -19,11 +19,15 @@ You'll need a JSON config file that looks something like this:
         "Password": "secret",
         "URL": "http://localhost:5984/"
     },
-    "DaemonPause": "60s"
+    "DaemonPause": "60s",
+    "Log": {
+        "FilePath": "/var/log/helios.log",
+		"Level": "info"
+	}
 }
 ```
 
-Where the AWS section corresponds to a keypair and S3 bucket, and the Couch section corresponds to an admin user. Most reasonable durations can be used for `DaemonPause` (e.g. 15s, 5m, 1h).
+Where the AWS section corresponds to a keypair and S3 bucket, and the Couch section corresponds to an admin user. Most reasonable durations can be used for `DaemonPause` (e.g. 15s, 5m, 1h). The `Log` section is only needed if you're running the `daemon` command.
 
 Running
 -------
