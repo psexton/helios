@@ -29,4 +29,8 @@ type Config struct {
 		URL      string
 	}
 	DaemonPause string
+	Log struct {
+		Level string
+		FilePath string
+	}
 }

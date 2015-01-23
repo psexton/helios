@@ -24,7 +24,6 @@ import (
 	log "github.com/cihub/seelog"
 	"github.com/psexton/helios/helios"
 	"os"
-	"path"
 )
 
 func main() {
@@ -34,31 +33,28 @@ func main() {
 	confPath, command, err := readCliFlags()
 	exitOnError(err)
 
-	// If command is daemon, we want to reroute log output to a file asap
-	if command == daemonCmd {
-		sendLogsToFile()
-	}
-
-	log.Info("confPath: ", confPath)
-	// command info message moved into switch block
-
 	// read in data from json conf file
 	// conf is a helios/Config struct
 	conf, err := readConf(confPath)
 	exitOnError(err)
 
+	// If command is daemon, we want to reroute log output to a file
+	if command == daemonCmd {
+		sendLogsToFile(conf)
+	}
+
 	// call sunrise or sunset, passing it the conf data
 	switch command {
 	case sunriseCmd:
-		log.Info("command: sunrise")
+		log.Debug("command: sunrise")
 		err := helios.Sunrise(conf)
 		exitOnError(err)
 	case sunsetCmd:
-		log.Info("command: sunset")
+		log.Debug("command: sunset")
 		err := helios.Sunset(conf)
 		exitOnError(err)
 	case daemonCmd:
-		log.Info("command: daemon")
+		log.Debug("command: daemon")
 		err := helios.Daemon(conf)
 		exitOnError(err)
 	}
@@ -73,12 +69,14 @@ func exitOnError(e error) {
 	}
 }
 
-func sendLogsToFile() {
-	// put logs in system defined temp dir
-	filePath := path.Join(os.TempDir(), "helios.log")
+func sendLogsToFile(conf helios.Config) {
+	// put logs in file specified by config
+	// filter by level specified in config
+	filePath := conf.Log.FilePath
+	filterLevel := conf.Log.Level
 	maxSize := "1000000"
 
-	loggerConfig := "<seelog><outputs><rollingfile type=\"size\" filename=\"" + filePath + "\" maxsize=\"" + maxSize + "\" maxrolls=\"5\"/></outputs></seelog>"
+	loggerConfig := "<seelog minlevel=\"" + filterLevel + "\"><outputs><rollingfile type=\"size\" filename=\"" + filePath + "\" maxsize=\"" + maxSize + "\" maxrolls=\"5\"/></outputs></seelog>"
 	logger, _ := log.LoggerFromConfigAsString(loggerConfig)
 	log.ReplaceLogger(logger)
 }

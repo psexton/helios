@@ -9,5 +9,9 @@
         "Password": "swordfish",
         "URL": "http://localhost:5984/"
     },
-    "DaemonPause": "5m"
+    "DaemonPause": "5m",
+	"Log": {
+		"Level": "info",
+		"FilePath": "helios.log"
+	}
 }

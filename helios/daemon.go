@@ -47,13 +47,13 @@ func Daemon(conf Config) (err error) {
 		log.Debug("jsonDocs: ", jsonDocs)
 
 		if len(jsonDocs) == 0 {
-			log.Debug("Sunrise time!")
+			log.Info("Sunrise time!")
 			err = Sunrise(conf)
 			if err != nil {
 				return
 			}
 		} else {
-			log.Debug("Sunset time!")
+			log.Info("Sunset time!")
 			err = Sunset(conf)
 			if err != nil {
 				return
@@ -61,7 +61,7 @@ func Daemon(conf Config) (err error) {
 		}
 
 		// Go have some tea
-		log.Debug("Nipping out for a bit of tea...")
+		log.Info("Nipping out for a bit of tea...")
 		time.Sleep(pauseDuration)
 	}
 }
