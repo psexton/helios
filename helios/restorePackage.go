@@ -30,8 +30,6 @@ import (
 )
 
 func restorePackage(filePath string, conf Config) (err error) {
-	log.Info("Restoring ", filePath)
-
 	// Read in the JSON file
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -45,7 +43,7 @@ func restorePackage(filePath string, conf Config) (err error) {
 
 	// Extract the name element
 	packageName := packageData["name"].(string) // we're pretty sure this is a string
-	log.Debug("Package name: ", packageName)
+	log.Info("Restoring ", packageName)
 
 	// Create an empty document so we can add attachments to it
 	docRevision, err := putEmptyDocument(packageName, conf)

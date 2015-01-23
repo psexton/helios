@@ -23,6 +23,6 @@ import (
 )
 
 func removeTempDir(dirPath string) {
-	log.Info("Removing temp dir ", dirPath)
+	log.Debug("Removing temp dir ", dirPath)
 	os.RemoveAll(dirPath)
 }

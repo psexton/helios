@@ -27,7 +27,7 @@ import (
 )
 
 func getListOfJsonFiles(conf Config) (packages []string, err error) {
-	log.Info("Downloading package list")
+	log.Debug("Downloading package list")
 
 	docListURL := conf.Couch.URL + "registry/_all_docs"
 	log.Debug("Doc List URL: ", docListURL)

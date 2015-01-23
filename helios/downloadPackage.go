@@ -29,7 +29,7 @@ import (
 
 // downloadPackage downloads a JSON doc, saves it, then downloads any attachments mentioned in it
 func downloadPackage(packageName string, destDir string, conf Config) (err error) {
-	log.Info("Downloading json doc for " + packageName)
+	log.Debug("Downloading json doc for " + packageName)
 
 	docURL := conf.Couch.URL + "registry/" + packageName
 	log.Debug("Doc URL: ", docURL)

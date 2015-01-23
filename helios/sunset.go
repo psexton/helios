@@ -52,6 +52,7 @@ func Sunset(conf Config) (err error) {
 
 	// steps 2-3: download ALL THE THINGS
 	for _, jsonDoc := range jsonDocs {
+		log.Info("Backing up ", jsonDoc)
 		err = downloadPackage(jsonDoc, tempDir, conf)
 		if err != nil {
 			return
